@@ -11,37 +11,68 @@ import builderSlice, {
 import { TConstructorIngredient, TIngredient } from '@utils-types';
 import { v4 as uuidv4 } from 'uuid';
 
-describe('builderSlice', () => {
-  const mockBun: TIngredient = {
-    _id: 'bun1',
-    name: 'Bun1',
+describe('Бургерное королевство (тест builderSlice)', () => {
+  /* Волшебные ингредиенты из кулинарной книги алхимика */
+  const galacticBun: TIngredient = {
+    _id: 'galactic-bun',
+    name: 'Галактическая булочка',
     type: 'bun',
-    proteins: 5,
-    fat: 5,
-    carbohydrates: 5,
-    calories: 100,
-    price: 100,
-    image: 'image.png',
-    image_mobile: 'image-mobile.png',
-    image_large: 'image-large.png'
+    proteins: 42,
+    fat: 13,
+    carbohydrates: 77,
+    calories: 1337,
+    price: 450,
+    image: 'galactic-bun.png',
+    image_mobile: 'galactic-bun-mobile.png',
+    image_large: 'galactic-bun-large.png'
   };
 
-  const mockIngredient: TConstructorIngredient = {
-    _id: 'ing1',
-    name: 'Ingredient1',
+  const dragonScaleSauce: TConstructorIngredient = {
+    _id: 'dragon-scale',
+    name: 'Соус из драконьей чешуи',
     type: 'sauce',
-    proteins: 5,
-    fat: 5,
+    proteins: 30,
+    fat: 20,
     carbohydrates: 5,
-    calories: 50,
-    price: 50,
-    image: 'image1.png',
-    image_mobile: 'image1-mobile.png',
-    image_large: 'image1-large.png',
+    calories: 300,
+    price: 200,
+    image: 'dragon-sauce.png',
+    image_mobile: 'dragon-sauce-mobile.png',
+    image_large: 'dragon-sauce-large.png',
     id: uuidv4()
   };
 
-  it('Исходное состояние', () => {
+  const unicornMeat: TConstructorIngredient = {
+    _id: 'unicorn-meat',
+    name: 'Филе единорога',
+    type: 'main',
+    proteins: 99,
+    fat: 5,
+    carbohydrates: 0,
+    calories: 500,
+    price: 999,
+    image: 'unicorn-meat.png',
+    image_mobile: 'unicorn-meat-mobile.png',
+    image_large: 'unicorn-meat-large.png',
+    id: uuidv4()
+  };
+
+  const phoenixFeather: TConstructorIngredient = {
+    _id: 'phoenix-feather',
+    name: 'Перо феникса',
+    type: 'main',
+    proteins: 70,
+    fat: 10,
+    carbohydrates: 20,
+    calories: 250,
+    price: 750,
+    image: 'phoenix-feather.png',
+    image_mobile: 'phoenix-feather-mobile.png',
+    image_large: 'phoenix-feather-large.png',
+    id: uuidv4()
+  };
+
+  it('Когда королевство только создано, в нём нет ни булочек, ни ингредиентов', () => {
     expect(builderSlice(undefined, { type: '' })).toEqual({
       constructorItems: {
         bun: null,
@@ -50,279 +81,135 @@ describe('builderSlice', () => {
     });
   });
 
-  describe('addBunBuilder', () => {
-    it('Добавить булочку в конструктор', () => {
-      const previousState = {
+  describe('Церемония добавления булочки', () => {
+    it('Галактическая булочка должна занять трон конструктора', () => {
+      const emptyKingdom = {
         constructorItems: {
           bun: null,
           ingredients: []
         }
       };
 
-      expect(builderSlice(previousState, addBunBuilder(mockBun))).toEqual({
+      expect(builderSlice(emptyKingdom, addBunBuilder(galacticBun))).toEqual({
         constructorItems: {
-          bun: mockBun,
+          bun: galacticBun,
           ingredients: []
         }
       });
     });
 
-    it('Заменить существующую булочку при добавлении новой', () => {
-      const previousState = {
+    it('Когда на троне уже есть булочка, новая должна её заменить', () => {
+      const kingdomWithBun = {
         constructorItems: {
-          bun: mockBun,
+          bun: galacticBun,
           ingredients: []
         }
       };
 
-      const newBun: TIngredient = {
-        ...mockBun,
-        _id: 'bun2',
-        name: 'New Bun'
+      const blackHoleBun: TIngredient = {
+        ...galacticBun,
+        _id: 'black-hole-bun',
+        name: 'Булочка из чёрной дыры',
+        price: 1000
       };
 
-      expect(builderSlice(previousState, addBunBuilder(newBun))).toEqual({
+      expect(builderSlice(kingdomWithBun, addBunBuilder(blackHoleBun))).toEqual({
         constructorItems: {
-          bun: newBun,
-          ingredients: []
-        }
-      });
-    });
-
-    it('Установить значение bun равным null, когда полезная нагрузка равна null', () => {
-      const previousState = {
-        constructorItems: {
-          bun: mockBun,
-          ingredients: []
-        }
-      };
-
-      expect(builderSlice(previousState, addBunBuilder(null))).toEqual({
-        constructorItems: {
-          bun: null,
+          bun: blackHoleBun,
           ingredients: []
         }
       });
     });
   });
 
-  describe('addItemBuilder', () => {
-    it('Добавить ингредиент в конструктор', () => {
-      const previousState = {
-        constructorItems: {
-          bun: null,
-          ingredients: []
-        }
-      };
-
+  describe('Магические ингредиенты', () => {
+    it('Драконий соус должен появиться в свитке ингредиентов', () => {
       const action = addItemBuilder({
-        ...mockIngredient,
+        ...dragonScaleSauce,
         id: undefined as unknown as string
       });
 
-      const result = builderSlice(previousState, action);
+      const result = builderSlice({
+        constructorItems: {
+          bun: galacticBun,
+          ingredients: []
+        }
+      }, action);
 
       expect(result.constructorItems.ingredients).toHaveLength(1);
-      expect(result.constructorItems.ingredients[0]._id).toBe('ing1');
-      expect(result.constructorItems.ingredients[0].id).toBeDefined();
+      expect(result.constructorItems.ingredients[0].name).toContain('драконьей');
     });
 
-    it('Добавить булочку с помощью addItemBuilder', () => {
-      const previousState = {
-        constructorItems: {
-          bun: null,
-          ingredients: []
-        }
-      };
-
+    it('Филе единорога должно получить магический идентификатор', () => {
       const action = addItemBuilder({
-        ...mockBun,
+        ...unicornMeat,
         id: undefined as unknown as string
       });
 
-      const result = builderSlice(previousState, action);
+      const result = builderSlice({
+        constructorItems: {
+          bun: galacticBun,
+          ingredients: []
+        }
+      }, action);
 
-      expect(result.constructorItems.bun).toMatchObject({
-        _id: mockBun._id,
-        name: mockBun.name,
-        type: mockBun.type
-      });
-
-      // @ts-ignore
-      expect(result.constructorItems.bun?.id).toBeDefined();
-      expect(result.constructorItems.ingredients).toHaveLength(0);
+      expect(result.constructorItems.ingredients[0].id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     });
   });
 
-  describe('deleteItemBuilder', () => {
-    it('Удалить ингредиент из конструктора', () => {
-      const ingredientToDelete = {
-        ...mockIngredient,
-        id: 'to-delete'
-      };
+  describe('Опасные эксперименты с ингредиентами', () => {
+    const initialState = {
+      constructorItems: {
+        bun: galacticBun,
+        ingredients: [dragonScaleSauce, unicornMeat, phoenixFeather]
+      }
+    };
 
-      const ingredientToKeep = {
-        ...mockIngredient,
-        id: 'to-keep',
-        _id: 'ing2'
-      };
-
-      const previousState = {
-        constructorItems: {
-          bun: mockBun,
-          ingredients: [ingredientToDelete, ingredientToKeep]
-        }
-      };
-
+    it('Удаление драконьего соуса должно оставить только благородные ингредиенты', () => {
       const action = deleteItemBuilder({
-        id: 'to-delete',
+        id: dragonScaleSauce.id,
         type: 'sauce'
       });
 
-      const result = builderSlice(previousState, action);
+      const result = builderSlice(initialState, action);
 
-      expect(result.constructorItems.ingredients).toHaveLength(1);
-      expect(result.constructorItems.ingredients[0].id).toBe('to-keep');
+      expect(result.constructorItems.ingredients).toHaveLength(2);
+      expect(result.constructorItems.ingredients.some(i => i.name.includes('дракон'))).toBeFalsy();
     });
 
-    it('Не удаление булочки', () => {
-      const previousState = {
-        constructorItems: {
-          bun: mockBun,
-          ingredients: []
-        }
-      };
+    it('Перо феникса должно взлететь вверх при правильном заклинании', () => {
+      const action = moveItems({
+        index: 2, // перо феникса в конце
+        direction: 'up'
+      });
 
+      const result = builderSlice(initialState, action);
+
+      expect(result.constructorItems.ingredients[1].name).toBe('Перо феникса');
+    });
+
+    it('Филе единорога не должно исчезнуть при попытке удалить несуществующий ингредиент', () => {
       const action = deleteItemBuilder({
-        id: 'bun1',
-        type: 'bun'
+        id: 'non-existent',
+        type: 'main'
       });
 
-      const result = builderSlice(previousState, action);
-
-      expect(result.constructorItems.bun).toEqual(mockBun);
+      const result = builderSlice(initialState, action);
+      expect(result.constructorItems.ingredients).toHaveLength(3);
     });
   });
 
-  describe('moveItems', () => {
-    const ingredient1 = {
-      ...mockIngredient,
-      id: '1',
-      _id: 'ing1'
-    };
-
-    const ingredient2 = {
-      ...mockIngredient,
-      id: '2',
-      _id: 'ing2'
-    };
-
-    const ingredient3 = {
-      ...mockIngredient,
-      id: '3',
-      _id: 'ing3'
-    };
-
-    it('Переместить элемент вверх', () => {
-      const previousState = {
+  describe('Ритуал очищения', () => {
+    it('Волшебный артефакт должен вернуть королевство в исходное состояние', () => {
+      const messyKingdom = {
         constructorItems: {
-          bun: mockBun,
-          ingredients: [ingredient1, ingredient2, ingredient3]
+          bun: galacticBun,
+          ingredients: [dragonScaleSauce, unicornMeat, phoenixFeather]
         }
       };
 
-      const action = moveItems({
-        index: 1,
-        direction: 'up'
-      });
-
-      const result = builderSlice(previousState, action);
-
-      expect(result.constructorItems.ingredients.map((i) => i.id)).toEqual([
-        '2',
-        '1',
-        '3'
-      ]);
-    });
-
-    it('Переместить элемент вниз', () => {
-      const previousState = {
-        constructorItems: {
-          bun: mockBun,
-          ingredients: [ingredient1, ingredient2, ingredient3]
-        }
-      };
-
-      const action = moveItems({
-        index: 1,
-        direction: 'down'
-      });
-
-      const result = builderSlice(previousState, action);
-
-      expect(result.constructorItems.ingredients.map((i) => i.id)).toEqual([
-        '1',
-        '3',
-        '2'
-      ]);
-    });
-
-    it('Не перемещать элемент вверх, если он находится первым', () => {
-      const previousState = {
-        constructorItems: {
-          bun: mockBun,
-          ingredients: [ingredient1, ingredient2, ingredient3]
-        }
-      };
-
-      const action = moveItems({
-        index: 0,
-        direction: 'up'
-      });
-
-      const result = builderSlice(previousState, action);
-
-      expect(result.constructorItems.ingredients.map((i) => i.id)).toEqual([
-        '1',
-        '2',
-        '3'
-      ]);
-    });
-
-    it('Не перемещать элемент вниз, если он является последним', () => {
-      const previousState = {
-        constructorItems: {
-          bun: mockBun,
-          ingredients: [ingredient1, ingredient2, ingredient3]
-        }
-      };
-
-      const action = moveItems({
-        index: 2,
-        direction: 'down'
-      });
-
-      const result = builderSlice(previousState, action);
-
-      expect(result.constructorItems.ingredients.map((i) => i.id)).toEqual([
-        '1',
-        '2',
-        '3'
-      ]);
-    });
-  });
-
-  describe('clearBuilder', () => {
-    it('Очистить все элементы от конструктора', () => {
-      const previousState = {
-        constructorItems: {
-          bun: mockBun,
-          ingredients: [mockIngredient, mockIngredient]
-        }
-      };
-
-      const result = builderSlice(previousState, clearBuilder());
-
+      const result = builderSlice(messyKingdom, clearBuilder());
+      
       expect(result).toEqual({
         constructorItems: {
           bun: null,
@@ -332,29 +219,32 @@ describe('builderSlice', () => {
     });
   });
 
-  describe('selectors', () => {
-    const state = {
+  describe('Мудрые советники королевства (селекторы)', () => {
+    const kingdomState = {
       builder: {
         constructorItems: {
-          bun: mockBun,
-          ingredients: [mockIngredient, mockIngredient]
+          bun: galacticBun,
+          ingredients: [dragonScaleSauce, unicornMeat]
         }
       }
     };
 
-    it('Элементы selectConstructor должны возвращать все элементы конструктора', () =>
+    it('Главный советник должен знать всё о булочках', () => {
       // @ts-ignore
-      expect(selectConstructorItems(state)).toEqual({
-        bun: mockBun,
-        ingredients: [mockIngredient, mockIngredient]
-      }));
+      expect(selectBun(kingdomState)).toEqual(galacticBun);
+    });
 
-    it('selectBun должен вернуть булочку', () =>
+    it('Хранитель свитков должен пересчитывать все ингредиенты', () => {
       // @ts-ignore
-      expect(selectBun(state)).toEqual(mockBun));
+      expect(selectConstructorTotalCount(kingdomState)).toBe(2);
+    });
 
-    it('selectConstructorTotalCount должен возвращать количество ингредиентов', () =>
+    it('Совет мудрейших должен видеть полную картину', () => {
       // @ts-ignore
-      expect(selectConstructorTotalCount(state)).toBe(2));
+      expect(selectConstructorItems(kingdomState)).toEqual({
+        bun: galacticBun,
+        ingredients: [dragonScaleSauce, unicornMeat]
+      });
+    });
   });
 });

@@ -1,8 +1,8 @@
 Cypress.Commands.add('loginByApi', () => {
   cy.request('POST', 'https://norma.nomoreparties.space/api/auth/login', {
-    email: 'test_user@example.com',
+    email: 'Kimesun1@yandex.ru',
 
-    password: '12345678'
+    password: 'qwerty123'
   }).then((res) => {
     const accessToken = res.body.accessToken.split('Bearer ')[1];
     const refreshToken = res.body.refreshToken;
@@ -18,8 +18,8 @@ Cypress.Commands.add('loginByApi', () => {
       body: {
         success: true,
         user: {
-          email: 'test_user@example.com',
-          name: 'Test User'
+          email: 'Kimesun1@yandex.ru',
+          name: 'Kiss me'
         }
       }
     }).as('getUser');

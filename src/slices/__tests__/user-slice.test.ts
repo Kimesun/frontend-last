@@ -50,8 +50,8 @@ const mockedDeleteCookie = jest.requireMock('../../utils/cookie').deleteCookie;
 
 describe('Слайс пользователя', () => {
   const mockUser: TUser = {
-    name: 'Test User',
-    email: 'test_user@example.com'
+    name: 'Kiss me',
+    email: 'Kimesun1@yandex.ru'
   };
 
   const mockApiResponse = {
@@ -116,9 +116,9 @@ describe('Слайс пользователя', () => {
 
         await store.dispatch(
           registerUser({
-            name: 'Test User',
-            email: 'test_user@example.com',
-            password: '12345678'
+            name: 'Kiss me',
+            email: 'Kimesun1@yandex.ru',
+            password: 'qwerty123'
           })
         );
 
@@ -172,8 +172,8 @@ describe('Слайс пользователя', () => {
 
         await store.dispatch(
           loginUser({
-            email: 'test_user@example.com',
-            password: '12345678'
+            email: 'Kimesun1@yandex.ru',
+            password: 'qwerty123'
           })
         );
 
@@ -259,7 +259,7 @@ describe('Слайс пользователя', () => {
       it('Обрабатывает состояние fulfilled', () => {
         const updatedUser = {
           ...mockUser,
-          name: 'Test User'
+          name: 'Kiss me'
         };
 
         const action = {
@@ -273,7 +273,7 @@ describe('Слайс пользователя', () => {
       it('Успешное обновление данных пользователя', async () => {
         const updatedUser = {
           ...mockUser,
-          name: 'Test User'
+          name: 'Kiss me'
         };
 
         mockedUpdateUserApi.mockResolvedValue({
@@ -295,8 +295,8 @@ describe('Слайс пользователя', () => {
 
         await store.dispatch(
           updateUser({
-            name: 'Test User',
-            email: 'test_user@example.com'
+            name: 'Kiss me',
+            email: 'Kimesun1@yandex.ru'
           })
         );
 

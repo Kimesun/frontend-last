@@ -4,7 +4,7 @@ const SELECTORS = {
   ingredientsApi: '/api/ingredients',
   orderApi: '/api/orders',
   userNameInput: 'input[name="name"]',
-  testUserName: 'Test User',
+  testUserName: 'Kiss me',
   profileUrlPart: '/profile',
   homeUrl: 'http://localhost:4000/',
   bunName: 'Флюоресцентная булка R2-D3',
@@ -25,7 +25,7 @@ describe('Авторизация и профиль', () => {
       body: {
         success: true,
         user: {
-          email: 'test_user@example.com',
+          email: 'Kimesun1@yandex.ru',
           name: SELECTORS.testUserName,
         }
       }

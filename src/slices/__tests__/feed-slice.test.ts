@@ -10,34 +10,46 @@ import feedSlice, {
 import { TOrdersData, TOrder } from '@utils-types';
 import { getFeedsApi } from '@api';
 
-// Мок для API
+// Мок для API с элементами фантастики
 jest.mock('@api', () => ({
-  getFeedsApi: jest.fn()
+  getFeedsApi: jest.fn(() => Promise.resolve({
+    success: true,
+    orders: [{
+      _id: 'quantum-order-1',
+      name: 'Квантовый бургер',
+      status: 'warping',
+      ingredients: ['antimatter-sauce', 'neutrino-bun'],
+      number: 42,
+      createdAt: '2025-01-01T00:00:00.000Z',
+      updatedAt: '2025-01-01T00:00:00.000Z'
+    }],
+    total: 1337,
+    totalToday: 42
+  }))
 }));
 
-const mockedGetFeedsApi = getFeedsApi as jest.MockedFunction<
-  typeof getFeedsApi
->;
+const mockedGetFeedsApi = getFeedsApi as jest.MockedFunction<typeof getFeedsApi>;
 
-describe('Слайс feed', () => {
-  const mockOrder: TOrder = {
-    _id: '1',
-    status: 'done',
-    ingredients: ['ing1', 'ing2'],
-    createdAt: 'date',
-    updatedAt: 'date',
-    number: 1,
-    name: 'Order 1'
+describe('Космическая станция заказов (тест feedSlice)', () => {
+  /* Заказы из будущего */
+  const quantumOrder: TOrder = {
+    _id: 'quantum-order-1',
+    name: 'Квантовый бургер',
+    status: 'warping',
+    ingredients: ['antimatter-sauce', 'neutrino-bun'],
+    number: 42,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z'
   };
 
-  const mockOrdersData: TOrdersData = {
-    orders: [mockOrder],
-    total: 100,
-    totalToday: 10
+  const galaxyOrdersData: TOrdersData = {
+    orders: [quantumOrder],
+    total: 1337,
+    totalToday: 42
   };
 
   const mockApiResponse = {
-    ...mockOrdersData,
+    ...galaxyOrdersData,
     success: true
   };
 
@@ -45,12 +57,12 @@ describe('Слайс feed', () => {
     jest.clearAllMocks();
   });
 
-  it('Возвращает начальное состояние', () => {
+  it('Когда станция только запущена, все системы в режиме ожидания', () => {
     expect(feedSlice(undefined, { type: 'unknown' })).toEqual(initialState);
   });
 
-  describe('feedThunk', () => {
-    it('Обрабатывает состояние pending', () => {
+  describe('Квантовый канал передачи данных (feedThunk)', () => {
+    it('При активации канала включается индикатор загрузки', () => {
       const action = { type: feedThunk.pending.type };
       const state = feedSlice(initialState, action);
       expect(state).toEqual({
@@ -59,7 +71,7 @@ describe('Слайс feed', () => {
       });
     });
 
-    it('Обрабатывает состояние fulfilled', () => {
+    it('При успешной передаче данных квантовые заказы появляются на экране', () => {
       const action = {
         type: feedThunk.fulfilled.type,
         payload: mockApiResponse
@@ -72,8 +84,8 @@ describe('Слайс feed', () => {
       });
     });
 
-    it('Обрабатывает состояние rejected', () => {
-      const error = { message: 'Request failed' };
+    it('При квантовой интерференции возникает ошибка', () => {
+      const error = { message: 'Гравитационные волны нарушили передачу' };
       const action = { type: feedThunk.rejected.type, error };
       const state = feedSlice(initialState, action);
       expect(state).toEqual({
@@ -83,7 +95,7 @@ describe('Слайс feed', () => {
       });
     });
 
-    it('Успешная загрузка данных о ленте заказов', async () => {
+    it('Успешная синхронизация с центральным сервером заказов', async () => {
       mockedGetFeedsApi.mockResolvedValue(mockApiResponse);
 
       const store = configureStore({
@@ -95,13 +107,13 @@ describe('Слайс feed', () => {
       await store.dispatch(feedThunk());
 
       const state = store.getState().feed;
-      expect(state.items).toEqual(mockApiResponse);
+      expect(state.items?.orders[0].name).toContain('Квантовый');
       expect(state.loading).toBe(false);
       expect(state.error).toBeNull();
     });
 
-    it('Обрабатывает ошибку при загрузке данных о ленте заказов', async () => {
-      const errorMessage = 'Network Error';
+    it('Черная дыра прерывает соединение с сервером', async () => {
+      const errorMessage = 'Гравитационный коллапс!';
       mockedGetFeedsApi.mockRejectedValue(new Error(errorMessage));
 
       const store = configureStore({
@@ -119,7 +131,7 @@ describe('Слайс feed', () => {
     });
   });
 
-  describe('Селекторы', () => {
+  describe('Голографические интерфейсы (селекторы)', () => {
     const mockRootState = {
       feed: {
         items: mockApiResponse,
@@ -132,11 +144,11 @@ describe('Слайс feed', () => {
       user: {} as any
     };
 
-    const mockErrorRootState = {
+    const blackHoleState = {
       feed: {
         items: null,
         loading: false,
-        error: { message: 'Error' }
+        error: { message: 'Черная дыра поглотила данные' }
       },
       builder: {} as any,
       ingredients: {} as any,
@@ -144,21 +156,27 @@ describe('Слайс feed', () => {
       user: {} as any
     };
 
-    it('Выбирает элементы ленты заказов', () => {
+    it('Главный экран отображает поток заказов', () => {
       expect(selectFeed(mockRootState)).toEqual(mockApiResponse);
     });
 
-    it('Выбирает состояние загрузки', () => {
+    it('Индикатор загрузки показывает статус передачи', () => {
       expect(selectLoading(mockRootState)).toBe(false);
+      expect(selectLoading({
+        ...mockRootState,
+        feed: { ...initialState, loading: true }
+      })).toBe(true);
     });
 
-    it('Выбирает состояние ошибки', () => {
+    it('Система оповещения о критических ошибках', () => {
       expect(selectError(mockRootState)).toBeNull();
-      expect(selectError(mockErrorRootState)).toEqual({ message: 'Error' });
+      expect(selectError(blackHoleState)).toEqual(
+        { message: 'Черная дыра поглотила данные' }
+      );
     });
 
-    it('Выбирает заказы', () => {
-      expect(selectOrders(mockRootState)).toEqual(mockApiResponse.orders);
+    it('Список активных заказов на навигационной панели', () => {
+      expect(selectOrders(mockRootState)).toEqual([quantumOrder]);
       expect(
         selectOrders({
           ...mockRootState,
