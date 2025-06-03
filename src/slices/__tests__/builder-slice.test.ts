@@ -1,3 +1,4 @@
+import { configureStore } from '@reduxjs/toolkit';
 import builderSlice, {
   addBunBuilder,
   addItemBuilder,
@@ -10,7 +11,6 @@ import builderSlice, {
 } from '../builder-slice';
 import { TConstructorIngredient, TIngredient } from '@utils-types';
 import { v4 as uuidv4 } from 'uuid';
-import { combineReducers } from '@reduxjs/toolkit';
 
 describe('Бургерное королевство (тест builderSlice)', () => {
   /* Волшебные ингредиенты из кулинарной книги алхимика */
@@ -73,11 +73,6 @@ describe('Бургерное королевство (тест builderSlice)', ()
     id: uuidv4()
   };
 
-  // Создаем тестовый rootReducer для проверки
-  const rootReducer = combineReducers({
-    builder: builderSlice
-  });
-
   it('Когда королевство только создано, в нём нет ни булочек, ни ингредиентов', () => {
     expect(builderSlice(undefined, { type: '' })).toEqual({
       constructorItems: {
@@ -87,20 +82,18 @@ describe('Бургерное королевство (тест builderSlice)', ()
     });
   });
 
-  it('Корневой редьюсер не изменяет состояние при неизвестном действии', () => {
-    const initialState = {
-      builder: {
-        constructorItems: {
-          bun: galacticBun,
-          ingredients: [dragonScaleSauce]
-        }
+  it('Store не изменяет состояние при неизвестном действии', () => {
+    const store = configureStore({
+      reducer: {
+        builder: builderSlice
       }
-    };
+    });
 
-    const action = { type: 'UNKNOWN_ACTION' };
-    const result = rootReducer(initialState, action);
+    const initialState = store.getState();
+    store.dispatch({ type: 'UNKNOWN_ACTION' });
+    const newState = store.getState();
 
-    expect(result).toEqual(initialState);
+    expect(newState).toEqual(initialState);
   });
 
   describe('Церемония добавления булочки', () => {

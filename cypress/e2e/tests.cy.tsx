@@ -16,6 +16,11 @@ const SELECTORS = {
   orderConfirmationText: 'идентификатор заказа',
   constructorTitle: 'Соберите бургер',
   personalCabinet: 'Личный кабинет',
+  // Добавлены новые селекторы для конструктора
+  constructorBunTop: '[data-cy="constructor-bun-top"]',
+  constructorBunBottom: '[data-cy="constructor-bun-bottom"]',
+  constructorIngredientsList: '[data-cy="constructor-ingredients"]',
+  ingredientInConstructor: '[data-cy="ingredient-in-constructor"]'
 };
 
 describe('Авторизация и профиль', () => {
@@ -76,9 +81,14 @@ describe('Функциональность конструктора бургер
   });
 
   it('Добавление начинки в конструктор', () => {
+    // 1. Открываем раздел "Начинки" и кликаем на ингредиент
     cy.contains('Начинки').scrollIntoView().click({ force: true });
     cy.contains(SELECTORS.fillingName).next().click();
-    cy.contains(SELECTORS.fillingName).should('exist');
+  
+    // 2. Проверяем, что ингредиент появился в конструкторе
+    cy.get('.constructor-element')  // Ищем элемент с классом constructor-element
+      .should('exist')              // Проверяем, что он существует
+      .and('contain', SELECTORS.fillingName);  // И содержит нужный текст
   });
 
   it('Добавление ингредиентов в заказ и очистка конструктора', () => {
@@ -86,37 +96,51 @@ describe('Функциональность конструктора бургер
       fixture: 'makeOrder.json',
       statusCode: 200
     }).as('newOrder');
-
+  
+    // Добавляем булку
     cy.contains(SELECTORS.bunName).next().click();
+    // Добавляем начинку
     cy.contains('Начинки').scrollIntoView();
     cy.contains(SELECTORS.fillingName).next().click();
-
+  
+    // Оформляем заказ
     cy.contains(SELECTORS.orderButton).should('not.be.disabled').click();
     cy.wait('@newOrder', { timeout: 30000 })
       .its('response.statusCode')
       .should('eq', 200);
-
+  
+    // Закрываем модальное окно
     cy.contains(SELECTORS.orderConfirmationText).should('be.visible');
     cy.get('body').type('{esc}');
-    // Проверка, что булка-плейсхолдер виден
-    cy.contains(SELECTORS.bunPlaceholder).should('exist');
-
-    // Проверка, что список ингредиентов пуст — ни одной добавленной начинки или соуса
-    cy.get('[data-testid="constructor-ingredient"]').should('not.exist');
+  
+    // Проверяем очистку конструктора
+    // 1. Проверяем плейсхолдеры
+    cy.contains(SELECTORS.bunPlaceholder).should('be.visible');
+    cy.contains(SELECTORS.fillingPlaceholder).should('be.visible');
+    
+    // 2. Проверяем, что добавленные ингредиенты не видны
+    // Вариант 1: проверка по названию
+    cy.contains(SELECTORS.bunName).should('not.be.visible');
+    cy.contains(SELECTORS.fillingName).should('not.be.visible');
   });
 
   it('Открытие и закрытие модального окна ингредиента', () => {
-    // Кликаем по ингредиенту в списке
+    // Кликаем по ингредиенту
     cy.contains(SELECTORS.bunOption).click();
-    
-    // Проверяем название ингредиента в модалке (должно совпадать с кликнутым)
-    cy.contains('h3', SELECTORS.bunOption).should('be.visible');
   
-    // Закрываем модальное окно
+    // Проверяем модальное окно по найденному классу
+    cy.get('.xqsNTMuGR8DdWtMkOGiM').as('modal').should('be.visible');
+  
+    // Проверяем содержимое внутри модалки
+    cy.get('@modal').within(() => {
+      cy.contains('h3', SELECTORS.bunOption).should('be.visible'); // Или проверяем заголовок "Детали ингредиента"
+    });
+  
+    // Закрываем модалку
     cy.get('body').type('{esc}');
   
-    // Проверяем, что модальное окно закрылось
-    cy.contains('h2', 'Детали ингредиента').should('not.exist');
+    // Проверяем, что она исчезла
+    cy.get('.xqsNTMuGR8DdWtMkOGiM').should('not.exist');
   });
 
   it('Закрытие модального окна через клик на оверлей', () => {
