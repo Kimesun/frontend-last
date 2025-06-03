@@ -98,14 +98,25 @@ describe('Функциональность конструктора бургер
 
     cy.contains(SELECTORS.orderConfirmationText).should('be.visible');
     cy.get('body').type('{esc}');
+    // Проверка, что булка-плейсхолдер виден
     cy.contains(SELECTORS.bunPlaceholder).should('exist');
+
+    // Проверка, что список ингредиентов пуст — ни одной добавленной начинки или соуса
+    cy.get('[data-testid="constructor-ingredient"]').should('not.exist');
   });
 
   it('Открытие и закрытие модального окна ингредиента', () => {
+    // Кликаем по ингредиенту в списке
     cy.contains(SELECTORS.bunOption).click();
-    cy.url().should('include', '/ingredients/');
+    
+    // Проверяем название ингредиента в модалке (должно совпадать с кликнутым)
+    cy.contains('h3', SELECTORS.bunOption).should('be.visible');
+  
+    // Закрываем модальное окно
     cy.get('body').type('{esc}');
-    cy.url().should('eq', SELECTORS.homeUrl);
+  
+    // Проверяем, что модальное окно закрылось
+    cy.contains('h2', 'Детали ингредиента').should('not.exist');
   });
 
   it('Закрытие модального окна через клик на оверлей', () => {
